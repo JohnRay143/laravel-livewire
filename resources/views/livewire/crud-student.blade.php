@@ -33,13 +33,27 @@
                     </div>
                 </div>
                 @endif
+
+                <input wire:model.debounce.350ms="search" class="my-4 inline-flex justify-center rounded-md border px-4 py-2 shadow-sm">
+
                 <button wire:click="create()"
-                    class="my-4 inline-flex justify-center w-full rounded-md border border-transparent px-4 py-2 bg-red-600 text-base font-bold text-white shadow-sm hover:bg-red-700">
+                    class="my-4 inline-flex justify-center rounded-md border border-transparent px-4 py-2 bg-red-600 text-base font-bold text-white shadow-sm hover:bg-red-700">
                     Create Student
                 </button>
-                <!-- @if($isModalOpen) -->
-                @include('livewire.create')
-                <!-- @endif -->
+
+                <button wire:click="graph()"
+                    class="my-4 inline-flex justify-center rounded-md border border-transparent px-4 py-2 bg-blue-600 text-base font-bold text-white shadow-sm hover:bg-blue-700">
+                    View Graph
+                </button>
+                
+                @if($isModalOpen)
+                    @include('livewire.create')
+                @endif
+                
+                @if($isGraphModalOpen)
+                    @include('livewire.chart')
+                @endif
+
                 <table class="table-fixed w-full">
                     <thead>
                         <tr class="bg-gray-100">
@@ -50,9 +64,9 @@
                             <th class="px-4 py-2">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach($students as $student)
-                        <tr>
+                    <tbody wire:sortable="updateStudentOrder">
+                        @foreach ($students as $student)
+                        <tr wire:sortable.item="{{ $student->id }}" wire:key="student-{{ $student->id }}" wire:sortable.handle>
                             <td class="border px-4 py-2">{{ $student->id }}</td>
                             <td class="border px-4 py-2">{{ $student->name }}</td>
                             <td class="border px-4 py-2">{{ $student->email}}</td>
@@ -67,6 +81,12 @@
                         @endforeach
                     </tbody>
                 </table>
+
+                @if(count($students))
+                    {{ $students->links() }}
+                @endif
+            
+
             </div>
         </div>
     </div>    

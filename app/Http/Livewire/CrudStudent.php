@@ -2,17 +2,33 @@
 namespace App\Http\Livewire;
 use Livewire\Component;
 use App\Models\Student;
+use Livewire\withPagination;
 
 class CrudStudent extends Component
 {
+    use withPagination;
+    public $name, $email, $mobile, $student_id;
 
-public $students, $name, $email, $mobile, $student_id;
+
     public $isModalOpen = 0;
+    public $isGraphModalOpen = 0;
+
+    public $search;
+    
     public function render()
     {
-        $this->students = Student::all();
-        return view('livewire.crud-student');
+        return view('livewire.crud-student', [
+            'students' => Student::search(trim($this->search))->orderBy('order_position', 'asc')->paginate(10),
+        ]);
     }
+
+
+    public function graph()
+    {
+        $this->openGraphModalPopover();
+    }
+
+
     public function create()
     {
         $this->resetCreateForm();
@@ -26,6 +42,21 @@ public $students, $name, $email, $mobile, $student_id;
     {
         $this->isModalOpen = false;
     }
+
+
+    
+    public function openGraphModalPopover()
+    {
+        $this->isGraphModalOpen = true;
+    }
+    
+    public function closeGraphModalPopover()
+    {
+        $this->isGraphModalOpen = false;
+    }
+
+
+
     private function resetCreateForm(){
         $this->name = '';
         $this->email = '';
@@ -63,6 +94,17 @@ public $students, $name, $email, $mobile, $student_id;
     public function delete($id)
     {
         Student::find($id)->delete();
-        session()->flash('message', 'Studen deleted.');
+        session()->flash('message', 'Student deleted.');
     }
+
+
+    public function updateStudentOrder($items) 
+    {
+        foreach($items as $item)
+        {
+            Student::find($item['value'])->update(['order_position' => $item['order']]);
+        }
+    }
+
+
 }
